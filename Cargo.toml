@@ -5,3 +5,7 @@ edition = "2021"
 
 [dependencies]
 bunt = "0.2.6"
+
+[[bin]]
+name = "main"
+path = "src/main.rs"

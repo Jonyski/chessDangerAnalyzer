@@ -5,10 +5,10 @@ fn main() {
     let board = vec!(["T", "N", "B", "Q", "K", "B", "N", "T"],
                      ["P", "P", "P", " ", " ", "P", "P", "P"],
                      [" ", " ", " ", " ", "P", " ", " ", " "],
-                     [" ", "n", " ", " ", " ", " ", " ", " "],
-                     [" ", " ", "p", "q", "N", "p", " ", " "],
-                     [" ", " ", " ", " ", "p", " ", " ", " "],
-                     ["p", "p", "p", "p", " ", " ", "p", "p"],
+                     [" ", " ", " ", " ", " ", " ", "N", " "],
+                     [" ", " ", " ", "q", " ", " ", " ", " "],
+                     [" ", " ", " ", "P", "p", " ", " ", " "],
+                     ["p", "p", "p", " ", " ", " ", "p", "p"],
                      ["t", " ", "b", " ", "k", "b", "n", "t"]
                      );
 
@@ -158,7 +158,7 @@ fn main() {
 
                         let formatedOponentCoord = format!("{}{}", rowNumToLetter.get(&(&newPosition.row)).unwrap(), newPosition.line + 1);
                         let myPiece = strToPieceName.get(&board[newPosition.line - 2][newPosition.row - 1]).unwrap().to_string();
-                        let myPieceCoord = rowNumToLetter[&(newPosition.row - 1)].to_string() + &(newPosition.line - 2).to_string();
+                        let myPieceCoord = rowNumToLetter[&(newPosition.row - 1)].to_string() + &(newPosition.line - 2 + 1).to_string();
 
                         printDangerMsg("knight".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
 
@@ -170,7 +170,7 @@ fn main() {
 
                         let formatedOponentCoord = format!("{}{}", rowNumToLetter.get(&newPosition.row).unwrap(), newPosition.line + 1);
                         let myPiece = strToPieceName.get(&board[newPosition.line - 2][newPosition.row + 1]).unwrap().to_string();
-                        let myPieceCoord = rowNumToLetter[&(newPosition.row + 1)].to_string() + &(newPosition.line - 2).to_string();
+                        let myPieceCoord = rowNumToLetter[&(newPosition.row + 1)].to_string() + &(newPosition.line - 2 + 1).to_string();
 
                         printDangerMsg("knight".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
 
@@ -185,7 +185,7 @@ fn main() {
 
                         let formatedOponentCoord = format!("{}{}", rowNumToLetter.get(&newPosition.row).unwrap(), newPosition.line + 1);
                         let myPiece = strToPieceName.get(&board[newPosition.line + 2][newPosition.row - 1]).unwrap().to_string();
-                        let myPieceCoord = rowNumToLetter[&(newPosition.row - 1)].to_string() + &(newPosition.line + 2).to_string();
+                        let myPieceCoord = rowNumToLetter[&(newPosition.row - 1)].to_string() + &(newPosition.line + 2 + 1).to_string();
 
                         printDangerMsg("knight".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
 
@@ -197,7 +197,7 @@ fn main() {
 
                         let formatedOponentCoord = format!("{}{}", rowNumToLetter.get(&newPosition.row).unwrap(), newPosition.line + 1);
                         let myPiece = strToPieceName.get(&board[newPosition.line + 2][newPosition.row + 1]).unwrap().to_string();
-                        let myPieceCoord = rowNumToLetter[&(newPosition.row + 1)].to_string() + &(newPosition.line + 2).to_string();
+                        let myPieceCoord = rowNumToLetter[&(newPosition.row + 1)].to_string() + &(newPosition.line + 2 + 1).to_string();
 
                         printDangerMsg("knight".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
 
@@ -212,7 +212,7 @@ fn main() {
 
                         let formatedOponentCoord = format!("{}{}", rowNumToLetter.get(&newPosition.row).unwrap(), newPosition.line + 1);
                         let myPiece = strToPieceName.get(&board[newPosition.line - 1][newPosition.row - 2]).unwrap().to_string();
-                        let myPieceCoord = rowNumToLetter[&(newPosition.row - 2)].to_string() + &(newPosition.line - 1).to_string();
+                        let myPieceCoord = rowNumToLetter[&(newPosition.row - 2)].to_string() + &(newPosition.line - 1 + 1).to_string();
 
                         printDangerMsg("knight".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
 
@@ -224,7 +224,7 @@ fn main() {
 
                         let formatedOponentCoord = format!("{}{}", rowNumToLetter.get(&newPosition.row).unwrap(), newPosition.line + 1);
                         let myPiece = strToPieceName.get(&board[newPosition.line + 1][newPosition.row - 2]).unwrap().to_string();
-                        let myPieceCoord = rowNumToLetter[&(newPosition.row - 2)].to_string() + &(newPosition.line + 1).to_string();
+                        let myPieceCoord = rowNumToLetter[&(newPosition.row - 2)].to_string() + &(newPosition.line + 1 + 1).to_string();
 
                         printDangerMsg("knight".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
 
@@ -239,7 +239,7 @@ fn main() {
 
                         let formatedOponentCoord = format!("{}{}", rowNumToLetter.get(&newPosition.row).unwrap(), newPosition.line + 1);
                         let myPiece = strToPieceName.get(&board[newPosition.line - 1][newPosition.row + 2]).unwrap().to_string();
-                        let myPieceCoord = rowNumToLetter[&(newPosition.row + 2)].to_string() + &(newPosition.line - 1).to_string();
+                        let myPieceCoord = rowNumToLetter[&(newPosition.row + 2)].to_string() + &(newPosition.line - 1 + 1).to_string();
 
                         printDangerMsg("knight".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
 
@@ -251,7 +251,7 @@ fn main() {
 
                         let formatedOponentCoord = format!("{}{}", rowNumToLetter.get(&newPosition.row).unwrap(), newPosition.line + 1);
                         let myPiece = strToPieceName.get(&board[newPosition.line + 1][newPosition.row + 2]).unwrap().to_string();
-                        let myPieceCoord = rowNumToLetter[&(newPosition.row + 2)].to_string() + &(newPosition.line + 1).to_string();
+                        let myPieceCoord = rowNumToLetter[&(newPosition.row + 2)].to_string() + &(newPosition.line + 1 + 1).to_string();
 
                         printDangerMsg("knight".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
 
