@@ -53,7 +53,7 @@ fn main() {
         for line in 0..8 as usize{
             for row in 0..8 as usize{
                 if row == 0 {
-                    bunt::print!("        ");
+                    bunt::print!("         {[#999999]} ", line + 1);
                 }
 
                 if (line, row) == beforeCoordinates {
@@ -70,7 +70,8 @@ fn main() {
                 if row == 7 {
                     bunt::print!("\n");
                     if line == 7 {
-                        bunt::println!("\n\n");
+                        bunt::println!("           {$#999999}h g f e d c b a{/$}");
+                        bunt::println!("\n");
                     }
                 }
             }
