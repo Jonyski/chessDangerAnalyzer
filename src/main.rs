@@ -9,14 +9,14 @@ fn main() {
                      [" ", " ", "p", " ", " ", " ", "p", " "],
                      [" ", " ", " ", "q", " ", "b", " ", " "],
                      ["p", "p", "p", " ", " ", " ", "p", "p"],
-                     ["t", " ", "b", " ", "k", "b", "n", "t"]
+                     ["r", " ", "b", " ", "k", "b", "n", "r"]
                      );
 
     let mut strToPieceName = HashMap::new();
 
     strToPieceName.insert("p", "pawn");
     strToPieceName.insert("q", "queen");
-    strToPieceName.insert("t", "tower");
+    strToPieceName.insert("r", "rook");
     strToPieceName.insert("b", "bishop");
     strToPieceName.insert("k", "king");
     strToPieceName.insert("n", "knight");
@@ -161,8 +161,8 @@ fn main() {
                         analyzePawnMoves(line, row);
                     }
                 },
-                "T" => {
-                    //analyzeTowerMoves(line, row);
+                "R" => {
+                    //analyzeRookMoves(line, row);
                 },
                 "N" => {
                     let potentialMoves = createKnightOffsets(line, row);
