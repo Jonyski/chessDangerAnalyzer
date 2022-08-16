@@ -2,12 +2,12 @@ use bunt;
 use std::collections::HashMap;
 
 fn main() {
-    let board = vec!(["T", "N", "B", "Q", "K", "B", "N", "T"],
-                     ["P", "P", "P", " ", " ", "P", "P", "P"],
-                     [" ", " ", " ", " ", "P", " ", " ", " "],
-                     [" ", " ", " ", " ", " ", " ", "N", " "],
-                     [" ", " ", " ", "q", " ", " ", " ", " "],
-                     [" ", " ", " ", "P", "p", " ", " ", " "],
+    let board = vec!([" ", " ", " ", "p", " ", " ", " ", " "],
+                     [" ", " ", " ", "N", " ", "p", " ", " "],
+                     [" ", " ", "p", " ", "p", " ", "p", " "],
+                     [" ", "p", " ", " ", " ", " ", " ", " "],
+                     [" ", " ", "p", " ", " ", " ", "p", " "],
+                     [" ", " ", " ", "q", " ", "b", " ", " "],
                      ["p", "p", "p", " ", " ", " ", "p", "p"],
                      ["t", " ", "b", " ", "k", "b", "n", "t"]
                      );
@@ -108,162 +108,49 @@ fn main() {
         }
     };
 
-    let analyzeKnightMoves = |line: usize, row: usize| {
-        let mut potentialMoves: Vec<(usize, usize)> = vec!();
+    let createKnightOffsets = |line: usize, row: usize| -> Vec<(usize, usize)> {
+        let mut knightOffsets = vec!();
 
-        if line > 1 {
-            if row > 0 {
-                if board[line - 2][row - 1] == " " {potentialMoves.push((line - 2, row - 1))};
-            }
-            if row < 7 {
-                if board[line - 2][row + 1] == " " {potentialMoves.push((line - 2, row + 1))};
+        let offsets = vec!((2, -1),(2, 1),(-2, 1),(-2, -1),(1, 2),(-1, 2),(1, -2),(-1, -2));
+
+        for offset in offsets {
+            if line as i32 + offset.0 >= 0 && line as i32 + offset.0 < 8 && row as i32 + offset.1 >= 0 && row as i32 + offset.1 < 8{
+                if offset.0 < 0 && offset.1 < 0{
+                    knightOffsets.push((line - offset.0.abs() as usize, row - offset.1.abs() as usize));
+                } else if offset.0 >= 0 && offset.1 < 0 {
+                    knightOffsets.push((line + offset.0 as usize, row - offset.1.abs() as usize));
+                } else if offset.0 < 0 && offset.1 >= 0{
+                    knightOffsets.push((line - offset.0.abs() as usize, row + offset.1 as usize));
+                } else {
+                    knightOffsets.push((line + offset.0 as usize, row + offset.1 as usize));
+                }
+
+            } else {
+
             }
         }
 
-        if line < 6 {
-            if row > 0 {
-                if board[line + 2][row - 1] == " " {potentialMoves.push((line + 2, row - 1))};
-            }
-            if row < 7 {
-                if board[line + 2][row + 1] == " " {potentialMoves.push((line + 2, row + 1))};
-            }
-        }
+        knightOffsets
+    };
 
-        if row > 1 {
-            if line > 0 {
-                if board[line - 1][row - 2] == " " {potentialMoves.push((line - 1, row - 2))};
-            }
-            if line < 7 {
-                if board[line + 1][row - 2] == " " {potentialMoves.push((line + 1, row - 2))};
-            }
-        }
+    let analyzeKnightDangers = |potentialMoves: Vec<(usize, usize)>, line: usize, row: usize| {
+        println!("{:?}", potentialMoves);
+        for potMov in potentialMoves {
+            let potentialKnightDangers = createKnightOffsets(potMov.0, potMov.1);
+            let knightDangers: Vec<&(usize, usize)> = potentialKnightDangers.iter().filter(|d| board[d.0][d.1].chars().any(|c| matches!(c, 'a'..='z') && d.0 >= 0 && d.0 < 8 && d.1 >= 0 && d.1 < 8)).collect();
+            for danger in knightDangers {
+                let formatedOponentCoord = format!("{}{}",rowNumToLetter.get(&potMov.1).unwrap(), potMov.0 + 1);
+                let myPiece = strToPieceName.get(board[danger.0][danger.1]).unwrap().to_string();
+                let myPieceCoord = format!("{}{}", rowNumToLetter.get(&danger.1).unwrap(), danger.0 + 1);
 
-        if row < 6 {
-            if line > 0 {
-                if board[line - 1][row + 2] == " " {potentialMoves.push((line - 1, row + 2))};
-            }
-            if line < 7 {
-                if board[line + 1][row + 2] == " " {potentialMoves.push((line + 1, row + 2))};
-            }
-        }
+                printDangerMsg("knight".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
 
-        let mut potentialAttacks: Vec<(usize, usize)> = vec!();
+                printBoardFormated("N", (line, row), (potMov.0, potMov.1), (danger.0, danger.1));
 
-        for movement in potentialMoves {
-            let newPosition = coord::new(movement.0, movement.1);
-
-
-            if newPosition.line > 1 {
-                if newPosition.row > 0 {
-                    if board[newPosition.line - 2][newPosition.row - 1] != " " && board[newPosition.line - 2][newPosition.row - 1].chars().any(|c| matches!(c, 'a'..='z')) {
-
-                        let formatedOponentCoord = format!("{}{}", rowNumToLetter.get(&(&newPosition.row)).unwrap(), newPosition.line + 1);
-                        let myPiece = strToPieceName.get(&board[newPosition.line - 2][newPosition.row - 1]).unwrap().to_string();
-                        let myPieceCoord = rowNumToLetter[&(newPosition.row - 1)].to_string() + &(newPosition.line - 2 + 1).to_string();
-
-                        printDangerMsg("knight".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
-
-                        printBoardFormated("N", (line, row), (newPosition.line, newPosition.row), (newPosition.line - 2, newPosition.row - 1))
-                    }
-                }
-                if newPosition.row < 7 {
-                    if board[newPosition.line - 2][newPosition.row + 1] != " " && board[newPosition.line - 2][newPosition.row + 1].chars().any(|c| matches!(c, 'a'..='z')) {
-
-                        let formatedOponentCoord = format!("{}{}", rowNumToLetter.get(&newPosition.row).unwrap(), newPosition.line + 1);
-                        let myPiece = strToPieceName.get(&board[newPosition.line - 2][newPosition.row + 1]).unwrap().to_string();
-                        let myPieceCoord = rowNumToLetter[&(newPosition.row + 1)].to_string() + &(newPosition.line - 2 + 1).to_string();
-
-                        printDangerMsg("knight".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
-
-                        printBoardFormated("N", (line, row), (newPosition.line, newPosition.row), (newPosition.line - 2, newPosition.row + 1))
-                    }
-                }
-            }
-
-            if newPosition.line < 6 {
-                if newPosition.row > 0 {
-                    if board[newPosition.line + 2][newPosition.row - 1] != " " && board[newPosition.line + 2][newPosition.row - 1].chars().any(|c| matches!(c, 'a'..='z')) {
-
-                        let formatedOponentCoord = format!("{}{}", rowNumToLetter.get(&newPosition.row).unwrap(), newPosition.line + 1);
-                        let myPiece = strToPieceName.get(&board[newPosition.line + 2][newPosition.row - 1]).unwrap().to_string();
-                        let myPieceCoord = rowNumToLetter[&(newPosition.row - 1)].to_string() + &(newPosition.line + 2 + 1).to_string();
-
-                        printDangerMsg("knight".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
-
-                        printBoardFormated("N", (line, row), (newPosition.line, newPosition.row), (newPosition.line + 2, newPosition.row - 1))
-                    }
-                }
-                if newPosition.row < 7 {
-                    if board[newPosition.line + 2][newPosition.row + 1] != " " && board[newPosition.line + 2][newPosition.row + 1].chars().any(|c| matches!(c, 'a'..='z')) {
-
-                        let formatedOponentCoord = format!("{}{}", rowNumToLetter.get(&newPosition.row).unwrap(), newPosition.line + 1);
-                        let myPiece = strToPieceName.get(&board[newPosition.line + 2][newPosition.row + 1]).unwrap().to_string();
-                        let myPieceCoord = rowNumToLetter[&(newPosition.row + 1)].to_string() + &(newPosition.line + 2 + 1).to_string();
-
-                        printDangerMsg("knight".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
-
-                        printBoardFormated("N", (line, row), (newPosition.line, newPosition.row), (newPosition.line + 2, newPosition.row + 1))
-                    }
-                }
-            }
-
-            if newPosition.row > 1 {
-                if newPosition.line > 0 {
-                    if board[newPosition.line - 1][newPosition.row - 2] != " " && board[newPosition.line - 1][newPosition.row - 2].chars().any(|c| matches!(c, 'a'..='z')) {
-
-                        let formatedOponentCoord = format!("{}{}", rowNumToLetter.get(&newPosition.row).unwrap(), newPosition.line + 1);
-                        let myPiece = strToPieceName.get(&board[newPosition.line - 1][newPosition.row - 2]).unwrap().to_string();
-                        let myPieceCoord = rowNumToLetter[&(newPosition.row - 2)].to_string() + &(newPosition.line - 1 + 1).to_string();
-
-                        printDangerMsg("knight".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
-
-                        printBoardFormated("N", (line, row), (newPosition.line, newPosition.row), (newPosition.line - 1, newPosition.row - 2))
-                    }
-                }
-                if newPosition.line < 7 {
-                    if board[newPosition.line + 1][newPosition.row - 2] != " " && board[newPosition.line + 1][newPosition.row - 2].chars().any(|c| matches!(c, 'a'..='z')) {
-
-                        let formatedOponentCoord = format!("{}{}", rowNumToLetter.get(&newPosition.row).unwrap(), newPosition.line + 1);
-                        let myPiece = strToPieceName.get(&board[newPosition.line + 1][newPosition.row - 2]).unwrap().to_string();
-                        let myPieceCoord = rowNumToLetter[&(newPosition.row - 2)].to_string() + &(newPosition.line + 1 + 1).to_string();
-
-                        printDangerMsg("knight".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
-
-                        printBoardFormated("N", (line, row), (newPosition.line, newPosition.row), (newPosition.line + 1, newPosition.row - 2))
-                    }
-                }
-            }
-
-            if newPosition.row < 6 {
-                if newPosition.line > 0 {
-                    if board[newPosition.line - 1][newPosition.row + 2] != " " && board[newPosition.line - 1][newPosition.row + 2].chars().any(|c| matches!(c, 'a'..='z')) {
-
-                        let formatedOponentCoord = format!("{}{}", rowNumToLetter.get(&newPosition.row).unwrap(), newPosition.line + 1);
-                        let myPiece = strToPieceName.get(&board[newPosition.line - 1][newPosition.row + 2]).unwrap().to_string();
-                        let myPieceCoord = rowNumToLetter[&(newPosition.row + 2)].to_string() + &(newPosition.line - 1 + 1).to_string();
-
-                        printDangerMsg("knight".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
-
-                        printBoardFormated("N", (line, row), (newPosition.line, newPosition.row), (newPosition.line - 1, newPosition.row + 2))
-                    }
-                }
-                if newPosition.line < 7 {
-                    if board[newPosition.line + 1][newPosition.row + 2] != " " && board[newPosition.line + 1][newPosition.row + 2].chars().any(|c| matches!(c, 'a'..='z')) {
-
-                        let formatedOponentCoord = format!("{}{}", rowNumToLetter.get(&newPosition.row).unwrap(), newPosition.line + 1);
-                        let myPiece = strToPieceName.get(&board[newPosition.line + 1][newPosition.row + 2]).unwrap().to_string();
-                        let myPieceCoord = rowNumToLetter[&(newPosition.row + 2)].to_string() + &(newPosition.line + 1 + 1).to_string();
-
-                        printDangerMsg("knight".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
-
-                        printBoardFormated("N", (line, row), (newPosition.line, newPosition.row), (newPosition.line + 1, newPosition.row + 2))
-                    }
-                }
             }
         }
     };
-
-
+    
     for line in 0..8 as usize{
         for row in 0..8 as usize{
 
@@ -278,7 +165,8 @@ fn main() {
                     //analyzeTowerMoves(line, row);
                 },
                 "N" => {
-                    analyzeKnightMoves(line, row);
+                    let potentialMoves = createKnightOffsets(line, row);
+                    analyzeKnightDangers(potentialMoves, line, row);
                 },
                 "B" => {
 
