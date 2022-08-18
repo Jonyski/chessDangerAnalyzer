@@ -4,6 +4,16 @@ use std::collections::HashMap;
 #[allow(non_snake_case)]
 #[allow(unused_comparisons)]
 fn main() {
+    /*  CHANGE THIS VECTOR TO THE BOARD THAT YOU WANT TO ANALYZE
+        UPPERCASE LETTERS ARE THE OPONENT PIECES
+        lowercase letters are your pieces
+        K = KING
+        Q = QUEEN
+        R = ROOK
+        B = BISHOP
+        N = KNIGHT
+        P = PAWN
+    */
     let board = vec!(["K", " ", " ", "R", " ", " ", " ", "R"],
                      ["P", "P", " ", " ", " ", "P", "P", "P"],
                      [" ", " ", " ", "B", "P", "N", " ", " "],
