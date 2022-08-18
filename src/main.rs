@@ -5,7 +5,7 @@ use std::collections::HashMap;
 #[allow(unused_comparisons)]
 fn main() {
     let board = vec!(["p", " ", " ", " ", " ", "p", " ", " "],
-                     [" ", " ", " ", "B", " ", " ", "p", " "],
+                     [" ", " ", " ", "Q", " ", " ", "p", " "],
                      [" ", " ", " ", " ", " ", " ", " ", " "],
                      [" ", "p", " ", " ", " ", " ", " ", " "],
                      [" ", " ", "p", " ", " ", " ", "p", " "],
@@ -357,6 +357,30 @@ fn main() {
 
     };
     
+    let analyzeQueenDangers = |potentialMoves: Vec<(usize, usize)>, line: usize, row: usize| {
+
+        for potMov in potentialMoves {
+            let mut potentialQueenDangers = createRookOffsets(potMov.0, potMov.1, "danger");
+            let mut bishopLikeOffsets = createBishopOffsets(potMov.0, potMov.1, "danger");
+
+            potentialQueenDangers.append(&mut bishopLikeOffsets);
+
+            let queenDangers: Vec<&(usize, usize)> = potentialQueenDangers.iter().filter(|d| board[d.0][d.1].chars().any(|c| matches!(c, 'a'..='z') && d.0 >= 0 && d.0 < 8 && d.1 >= 0 && d.1 < 8)).collect();
+
+            for danger in queenDangers {
+                let formatedOponentCoord = format!("{}{}",rowNumToLetter.get(&potMov.1).unwrap(), potMov.0 + 1);
+                let myPiece = strToPieceName.get(board[danger.0][danger.1]).unwrap().to_string();
+                let myPieceCoord = format!("{}{}", rowNumToLetter.get(&danger.1).unwrap(), danger.0 + 1);
+
+                printDangerMsg("queen".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
+
+                printBoardFormated("Q", (line, row), (potMov.0, potMov.1), (danger.0, danger.1));
+
+            }
+        }
+
+    };
+
     for line in 0..8 as usize{
         for row in 0..8 as usize{
 
@@ -380,10 +404,12 @@ fn main() {
                     analyzeBishopDangers(potentialMoves, line, row);
                 },
                 "Q" => {
+                    let mut potentialMoves = createRookOffsets(line, row, "movement");
+                    let mut potentialMoves2 = createBishopOffsets(line, row, "movement");
 
-                },
-                "K" => {
+                    potentialMoves.append(&mut potentialMoves2);
 
+                    analyzeQueenDangers(potentialMoves, line, row);
                 },
                 _ => {
 
