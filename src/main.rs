@@ -4,11 +4,11 @@ use std::collections::HashMap;
 #[allow(non_snake_case)]
 #[allow(unused_comparisons)]
 fn main() {
-    let board = vec!(["p", " ", " ", " ", " ", "p", " ", " "],
-                     [" ", " ", " ", "Q", " ", " ", "p", " "],
+    let board = vec!([" ", " ", " ", " ", " ", "p", " ", " "],
+                     ["P", " ", "P", " ", " ", " ", "p", "P"],
                      [" ", " ", " ", " ", " ", " ", " ", " "],
                      [" ", "p", " ", " ", " ", " ", " ", " "],
-                     [" ", " ", "p", " ", " ", " ", "p", " "],
+                     [" ", "p", "p", "p", " ", " ", "p", " "],
                      [" ", " ", " ", "q", " ", "b", " ", " "],
                      [" ", "p", "p", " ", " ", " ", " ", " "],
                      [" ", " ", " ", " ", " ", " ", " ", " "]
@@ -68,7 +68,7 @@ fn main() {
         }
     };
 
-    let analyzePawnMoves = |line: usize, row: usize| {
+    let analyzePawnMoves = |line: usize, row: usize, moveType: &str| {
         let afterCoords = (line + 1, row);
         if row < 7 {
             if board[line + 2][row + 1] != " " && board[line + 2][row + 1].chars().any(|c| matches!(c, 'a'..='z')) {
@@ -79,7 +79,11 @@ fn main() {
                 
                 printDangerMsg("pawn".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
 
-                printBoardFormated("P", (line, row), afterCoords, (line + 2, row + 1))
+                if moveType == "single move" {
+                    printBoardFormated("P", (line, row), afterCoords, (line + 2, row + 1));
+                } else if moveType == "double move" {
+                    printBoardFormated("P", (line - 1, row), afterCoords, (line + 2, row + 1));
+                }
             }
         }
 
@@ -93,7 +97,11 @@ fn main() {
                 printDangerMsg("pawn".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
             }
             if board[line + 2][row - 1] != " " && board[line + 2][row - 1].chars().any(|c| matches!(c, 'a'..='z')) {
-                printBoardFormated("P", (line, row), afterCoords, (line + 2, row - 1))
+                if moveType == "single move" {
+                    printBoardFormated("P", (line, row), afterCoords, (line + 2, row - 1));
+                } else if moveType == "double move" {
+                    printBoardFormated("P", (line - 1, row), afterCoords, (line + 2, row - 1));
+                }
             }
         }
     };
@@ -388,7 +396,10 @@ fn main() {
                 "P" => {
                     // moves are only analised if they are possible, duh
                     if board[line + 1][row] == " " {
-                        analyzePawnMoves(line, row);
+                        analyzePawnMoves(line, row, "single move");
+                    }
+                    if line == 1 && board[line + 2][row] == " " {
+                        analyzePawnMoves(line + 1 as usize, row, "double move");
                     }
                 },
                 "R" => {
