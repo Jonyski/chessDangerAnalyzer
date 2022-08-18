@@ -31,4 +31,4 @@ First we see a description of the threat, and then we see the board (here on git
 I was playing a online chess game with a friend that is much better than me, so i thought that maybe writing a "hack" i could get closer to his skill level while also learning a bit more about rust :)
 
 ## Is it finished?
-No
+Maybe
