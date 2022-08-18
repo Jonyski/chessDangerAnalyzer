@@ -408,7 +408,7 @@ fn main() {
                     if board[line + 1][row] == " " {
                         analyzePawnMoves(line, row, "single move");
                     }
-                    if line == 1 && board[line + 2][row] == " " {
+                    if line == 1 && board[line + 2][row] == " " && board[line + 1][row] == " " {
                         analyzePawnMoves(line + 1 as usize, row, "double move");
                     }
                 },
