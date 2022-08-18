@@ -1,15 +1,17 @@
 use bunt;
 use std::collections::HashMap;
 
+#[allow(non_snake_case)]
+#[allow(unused_comparisons)]
 fn main() {
-    let board = vec!([" ", "p", " ", "p", " ", " ", " ", " "],
-                     ["q", " ", " ", " ", " ", "p", " ", " "],
-                     ["p", " ", " ", "R", " ", " ", "p", " "],
+    let board = vec!(["p", " ", " ", " ", " ", "p", " ", " "],
+                     [" ", " ", " ", "B", " ", " ", "p", " "],
+                     [" ", " ", " ", " ", " ", " ", " ", " "],
                      [" ", "p", " ", " ", " ", " ", " ", " "],
                      [" ", " ", "p", " ", " ", " ", "p", " "],
                      [" ", " ", " ", "q", " ", "b", " ", " "],
-                     ["p", "p", "p", " ", " ", " ", "p", "p"],
-                     ["r", " ", "b", " ", "k", "b", "n", "r"]
+                     [" ", "p", "p", " ", " ", " ", " ", " "],
+                     [" ", " ", " ", " ", " ", " ", " ", " "]
                      );
 
     let mut strToPieceName = HashMap::new();
@@ -242,6 +244,118 @@ fn main() {
         }
 
     };
+
+    let createBishopOffsets = |line: usize, row: usize, offsetType: &str| -> Vec<(usize, usize)> {
+        let mut bishopOffsets = vec!();
+
+        let mut offsets = vec!();
+
+        for i in 1..8 {
+            offsets.push((-i as i32, -i as i32));
+            offsets.push((-i as i32, i as i32));
+            offsets.push((i as i32, i as i32));
+            offsets.push((i as i32, -i as i32));
+        }
+
+        let mut blockUpLeft = vec!();
+        let mut blockUpRight = vec!();
+        let mut blockDownRight = vec!();
+        let mut blockDownLeft = vec!();
+
+        for offset in &offsets {
+            if line as i32 + offset.0 >= 0 && line as i32 + offset.0 < 8 && row as i32 + offset.1 >= 0 && row as i32 + offset.1 < 8{
+                //up left
+                if offset.0 < 0 && offset.1 < 0 && board[line - offset.0.abs() as usize][row - offset.1.abs() as usize] != " "{
+                    blockUpLeft.push((offset.0, offset.1));
+                }
+                //up right 
+                else if offset.0 < 0 && offset.1 > 0 && board[line - offset.0.abs() as usize][row + offset.1 as usize] != " "{
+                    blockUpRight.push((offset.0, offset.1));
+                } 
+                //down right
+                else if offset.0 > 0 && offset.1 > 0 && board[line + offset.0 as usize][row + offset.1 as usize] != " "{
+                    blockDownRight.push((offset.0, offset.1));
+                }
+                //down left 
+                else if offset.0 > 0 && offset.1 < 0 && board[line + offset.0 as usize][row - offset.1.abs() as usize] != " "{
+                    blockDownLeft.push((offset.0, offset.1));
+                }
+            }
+        }
+
+        let bul = *blockUpLeft.iter().max().unwrap_or(&(-10, -10));
+        let bur = *blockUpRight.iter().max().unwrap_or(&(-10, 10));
+        let bdr = *blockDownRight.iter().min().unwrap_or(&(10, 10));
+        let bdl = *blockDownLeft.iter().min().unwrap_or(&(10, -10));
+
+
+        if offsetType == "movement" {
+            for offset in &offsets {
+                if line as i32 + offset.0 >= 0 && line as i32 + offset.0 < 8 && row as i32 + offset.1 >= 0 && row as i32 + offset.1 < 8{
+                    //moves up left
+                    if offset.0 < 0 && offset.1 < 0 && offset > &bul{
+                        bishopOffsets.push((line - offset.0.abs() as usize, row - offset.1.abs() as usize));
+                    } 
+                    //moves up right
+                    else if offset.0 < 0 && offset.1 > 0 && offset > &bur{
+                        bishopOffsets.push((line - offset.0.abs() as usize, row + offset.1 as usize));
+                    } 
+                    //moves down right
+                    else if offset.0 > 0 && offset.1 > 0 && offset < &bdr{
+                        bishopOffsets.push((line + offset.0 as usize, row + offset.1 as usize));
+                    }
+                    //moves down left
+                    else if offset.0 > 0 && offset.1 < 0 && offset < &bdl{
+                        bishopOffsets.push((line + offset.0 as usize, row - offset.1.abs() as usize));
+                    }
+                }
+            }
+        } else if offsetType == "danger" {
+            for offset in &offsets {
+                if line as i32 + offset.0 >= 0 && line as i32 + offset.0 < 8 && row as i32 + offset.1 >= 0 && row as i32 + offset.1 < 8{
+                    //moves up left
+                    if offset.0 < 0 && offset.1 < 0 && offset >= &bul{
+                        bishopOffsets.push((line - offset.0.abs() as usize, row - offset.1.abs() as usize));
+                    } 
+                    //moves up right
+                    else if offset.0 < 0 && offset.1 > 0 && offset >= &bur{
+                        bishopOffsets.push((line - offset.0.abs() as usize, row + offset.1 as usize));
+                    } 
+                    //moves down right
+                    else if offset.0 > 0 && offset.1 > 0 && offset <= &bdr{
+                        bishopOffsets.push((line + offset.0 as usize, row + offset.1 as usize));
+                    }
+                    //moves down left
+                    else if offset.0 > 0 && offset.1 < 0 && offset <= &bdl{
+                        bishopOffsets.push((line + offset.0 as usize, row - offset.1.abs() as usize));
+                    }
+                }
+            }
+        }
+
+
+        bishopOffsets
+    };
+
+    let analyzeBishopDangers = |potentialMoves: Vec<(usize, usize)>, line: usize, row: usize| {
+
+        for potMov in potentialMoves {
+            let potentialBishopDangers = createBishopOffsets(potMov.0, potMov.1, "danger");
+            let bishopDangers: Vec<&(usize, usize)> = potentialBishopDangers.iter().filter(|d| board[d.0][d.1].chars().any(|c| matches!(c, 'a'..='z') && d.0 >= 0 && d.0 < 8 && d.1 >= 0 && d.1 < 8)).collect();
+
+            for danger in bishopDangers {
+                let formatedOponentCoord = format!("{}{}",rowNumToLetter.get(&potMov.1).unwrap(), potMov.0 + 1);
+                let myPiece = strToPieceName.get(board[danger.0][danger.1]).unwrap().to_string();
+                let myPieceCoord = format!("{}{}", rowNumToLetter.get(&danger.1).unwrap(), danger.0 + 1);
+
+                printDangerMsg("bishop".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
+
+                printBoardFormated("B", (line, row), (potMov.0, potMov.1), (danger.0, danger.1));
+
+            }
+        }
+
+    };
     
     for line in 0..8 as usize{
         for row in 0..8 as usize{
@@ -249,7 +363,7 @@ fn main() {
             match board[line][row] {
                 "P" => {
                     // moves are only analised if they are possible, duh
-                    if (board[line + 1][row] == " ") {
+                    if board[line + 1][row] == " " {
                         analyzePawnMoves(line, row);
                     }
                 },
@@ -262,7 +376,8 @@ fn main() {
                     analyzeKnightDangers(potentialMoves, line, row);
                 },
                 "B" => {
-
+                    let potentialMoves = createBishopOffsets(line, row, "movement");
+                    analyzeBishopDangers(potentialMoves, line, row);
                 },
                 "Q" => {
 
