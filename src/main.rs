@@ -2,9 +2,9 @@ use bunt;
 use std::collections::HashMap;
 
 fn main() {
-    let board = vec!([" ", " ", " ", "p", " ", " ", " ", " "],
-                     [" ", " ", " ", "N", " ", "p", " ", " "],
-                     [" ", " ", "p", " ", "p", " ", "p", " "],
+    let board = vec!([" ", "p", " ", "p", " ", " ", " ", " "],
+                     ["q", " ", " ", " ", " ", "p", " ", " "],
+                     ["p", " ", " ", "R", " ", " ", "p", " "],
                      [" ", "p", " ", " ", " ", " ", " ", " "],
                      [" ", " ", "p", " ", " ", " ", "p", " "],
                      [" ", " ", " ", "q", " ", "b", " ", " "],
@@ -32,22 +32,10 @@ fn main() {
     rowNumToLetter.insert(1 as usize, "g");
     rowNumToLetter.insert(0 as usize, "h");
 
-    struct coord {
-        line: usize,
-        row: usize
-    }
-
-    impl coord {
-        fn new(line: usize, row: usize) -> coord {
-            coord {line, row}
-        }
-    }
 
     let printDangerMsg = |oponentPiece: String, formatedOponentCoord: String, myPiece: String, myPieceCoord: String| {
         bunt::println!("if the opponent moves his {[bold + #a1e2c6]} to {[bold]},\nhe will be able to eat your {[bold + #f1846c]} on {[bold]}", oponentPiece, formatedOponentCoord, myPiece, myPieceCoord);
     };
-
-
 
     let printBoardFormated = |piece: &str, beforeCoordinates: (usize, usize), afterCoordinates: (usize, usize), targetCoordinates: (usize, usize)| {
         for line in 0..8 as usize{
@@ -134,7 +122,6 @@ fn main() {
     };
 
     let analyzeKnightDangers = |potentialMoves: Vec<(usize, usize)>, line: usize, row: usize| {
-        println!("{:?}", potentialMoves);
         for potMov in potentialMoves {
             let potentialKnightDangers = createKnightOffsets(potMov.0, potMov.1);
             let knightDangers: Vec<&(usize, usize)> = potentialKnightDangers.iter().filter(|d| board[d.0][d.1].chars().any(|c| matches!(c, 'a'..='z') && d.0 >= 0 && d.0 < 8 && d.1 >= 0 && d.1 < 8)).collect();
@@ -150,6 +137,111 @@ fn main() {
             }
         }
     };
+
+    let createRookOffsets = |line: usize, row: usize, offsetType: &str| -> Vec<(usize, usize)> {
+        let mut rookOffsets = vec!();
+
+        let mut offsets = vec!();
+
+        for i in 1..8 {
+            offsets.push((-i as i32, 0 as i32));
+            offsets.push((0 as i32, i as i32));
+            offsets.push((i as i32, 0 as i32));
+            offsets.push((0 as i32, -i as i32));
+        }
+
+        let mut blockLeft = vec!();
+        let mut blockUp = vec!();
+        let mut blockRight = vec!();
+        let mut blockDown = vec!();
+
+        for offset in &offsets {
+            if line as i32 + offset.0 >= 0 && line as i32 + offset.0 < 8 && row as i32 + offset.1 >= 0 && row as i32 + offset.1 < 8{
+                if offset.1 < 0 && board[line][row - offset.1.abs() as usize] != " "{
+                    blockLeft.push(offset.1);
+                } else if offset.0 < 0 && board[line - offset.0.abs() as usize][row] != " "{
+                    blockUp.push(offset.0);
+                } else if offset.1 > 0 && board[line][row + offset.1 as usize] != " "{
+                    blockRight.push(offset.1);
+                } else if offset.0 > 0 && board[line + offset.0 as usize][row] != " "{
+                    blockDown.push(offset.0);
+                }
+            }
+        }
+
+        let bl = *blockLeft.iter().max().unwrap_or(&-10);
+        let bu = *blockUp.iter().max().unwrap_or(&-10);
+        let br = *blockRight.iter().min().unwrap_or(&10);
+        let bd = *blockDown.iter().min().unwrap_or(&10);
+
+
+        if offsetType == "movement" {
+            for offset in &offsets {
+                if line as i32 + offset.0 >= 0 && line as i32 + offset.0 < 8 && row as i32 + offset.1 >= 0 && row as i32 + offset.1 < 8{
+                    //moves left
+                    if offset.1 < 0 && offset.1 > bl{
+                        rookOffsets.push((line, row - offset.1.abs() as usize));
+                    } 
+                    //moves up
+                    else if offset.0 < 0 && offset.0 > bu{
+                        rookOffsets.push((line - offset.0.abs() as usize, row));
+                    } 
+                    //moves right
+                    else if offset.1 > 0 && offset.1 < br{
+                        rookOffsets.push((line, row + offset.1 as usize));
+                    }
+                    //moves down
+                    else if offset.0 > 0 && offset.0 < bd{
+                        rookOffsets.push((line + offset.0 as usize, row));
+                    }
+                }
+            }
+        } else if offsetType == "danger" {
+            for offset in &offsets {
+                if line as i32 + offset.0 >= 0 && line as i32 + offset.0 < 8 && row as i32 + offset.1 >= 0 && row as i32 + offset.1 < 8{
+                    //moves left
+                    if offset.1 < 0 && offset.1 >= bl{
+                        rookOffsets.push((line + offset.0 as usize, row - offset.1.abs() as usize));
+                    } 
+                    //moves up
+                    else if offset.0 < 0 && offset.0 >= bu{
+                        rookOffsets.push((line - offset.0.abs() as usize, row + offset.1 as usize));
+                    } 
+                    //moves right
+                    else if offset.1 > 0 && offset.1 <= br{
+                        rookOffsets.push((line + offset.0 as usize, row + offset.1 as usize));
+                    }
+                    //moves down
+                    else if offset.0 > 0 && offset.0 <= bd{
+                        rookOffsets.push((line + offset.0 as usize, row + offset.1 as usize));
+                    }
+                }
+            }
+        }
+
+
+        rookOffsets
+    };
+
+    let analyzeRookDangers = |potentialMoves: Vec<(usize, usize)>, line: usize, row: usize| {
+
+        for potMov in potentialMoves {
+            let potentialRookDangers = createRookOffsets(potMov.0, potMov.1, "danger");
+            let rookDangers: Vec<&(usize, usize)> = potentialRookDangers.iter().filter(|d| board[d.0][d.1].chars().any(|c| matches!(c, 'a'..='z') && d.0 >= 0 && d.0 < 8 && d.1 >= 0 && d.1 < 8)).collect();
+
+            for danger in rookDangers {
+                let formatedOponentCoord = format!("{}{}",rowNumToLetter.get(&potMov.1).unwrap(), potMov.0 + 1);
+                let myPiece = strToPieceName.get(board[danger.0][danger.1]).unwrap().to_string();
+                let myPieceCoord = format!("{}{}", rowNumToLetter.get(&danger.1).unwrap(), danger.0 + 1);
+
+                printDangerMsg("rook".to_string(), formatedOponentCoord, myPiece, myPieceCoord);
+
+                printBoardFormated("R", (line, row), (potMov.0, potMov.1), (danger.0, danger.1));
+
+            }
+        }
+
+    };
     
     for line in 0..8 as usize{
         for row in 0..8 as usize{
@@ -162,7 +254,8 @@ fn main() {
                     }
                 },
                 "R" => {
-                    //analyzeRookMoves(line, row);
+                    let potentialMoves = createRookOffsets(line, row, "movement");
+                    analyzeRookDangers(potentialMoves, line, row);
                 },
                 "N" => {
                     let potentialMoves = createKnightOffsets(line, row);
